@@ -30,22 +30,25 @@ public class ProcesoCliente extends Proceso{
 		imprimeln("Inicio de proceso");
 		imprimeln("Proceso cliente en ejecucion.");
 		imprimeln("Esperando datos para continuar.");
-		Nucleo.suspenderProceso();
-		//imprimeln("Hola =)");
-		byte[] solCliente=new byte[ConvertidorPaquetes.SOL_LENGTH];
-		byte[] respCliente=new byte[ConvertidorPaquetes.SOL_LENGTH];
-		ConvertidorPaquetes sol = new ConvertidorPaquetes(solCliente);
+		while(continuar()){
+			Nucleo.suspenderProceso();
+			//imprimeln("Hola =)");
+			byte[] solCliente=new byte[ConvertidorPaquetes.SOL_LENGTH];
+			byte[] respCliente=new byte[ConvertidorPaquetes.SOL_LENGTH];
+			ConvertidorPaquetes sol = new ConvertidorPaquetes(solCliente);
+			
+			imprimeln("Generando mensaje a ser enviado, llenando los campos necesarios");
+			sol.setOptCode((short)code);
+			sol.setData(msg==null?"":msg);
+			imprimeln("Señalamiento al núcleo para envío de mensaje");
+			Nucleo.send(248,solCliente);
+			imprimeln("Invocando a receive()");
+			Nucleo.receive(dameID(),respCliente);
+			imprimeln("Procesando respuesta recibida del servidor");
+			ConvertidorPaquetes resp = new ConvertidorPaquetes(respCliente);
+			String dato = resp.getStringData();
+			imprimeln("Proceso de la operación: "+dato);
+		}
 		
-		imprimeln("Generando mensaje a ser enviado, llenando los campos necesarios");
-		sol.setOptCode((short)code);
-		sol.setData(msg==null?"":msg);
-		imprimeln("Señalamiento al núcleo para envío de mensaje");
-		Nucleo.send(248,solCliente);
-		imprimeln("Invocando a receive()");
-		Nucleo.receive(dameID(),respCliente);
-		imprimeln("Procesando respuesta recibida del servidor");
-		ConvertidorPaquetes resp = new ConvertidorPaquetes(respCliente);
-		String dato = resp.getStringData();
-		imprimeln("Proceso de la operación: "+dato);
 	}
 }

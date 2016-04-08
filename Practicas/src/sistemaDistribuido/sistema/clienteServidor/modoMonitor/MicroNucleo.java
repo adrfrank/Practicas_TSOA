@@ -1,17 +1,30 @@
 package sistemaDistribuido.sistema.clienteServidor.modoMonitor;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.Hashtable;
+
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.MicroNucleoBase;
+import sistemaDistribuido.sistema.clienteServidor.modoUsuario.Proceso;
+import sistemaDistribuido.util.ConvertidorPaquetes;
 
 /**
  * 
  */
 public final class MicroNucleo extends MicroNucleoBase{
 	private static MicroNucleo nucleo=new MicroNucleo();
-
+	private Hashtable<Integer,MaquinaProceso > tablaEmision;
+	private Hashtable<Integer,byte[]> tablaRecepcion;
 	/**
 	 * 
 	 */
 	private MicroNucleo(){
+		tablaEmision = new Hashtable<Integer,MaquinaProceso>();
+		tablaRecepcion = new Hashtable<Integer,byte[]>();
 	}
 
 	/**
@@ -25,15 +38,15 @@ public final class MicroNucleo extends MicroNucleoBase{
     Esta es una forma incorrecta de programacion "por uso de variables globales" (en este caso atributos de clase)
     ya que, para empezar, no se usan ambos parametros en los metodos y fallaria si dos procesos invocaran
     simultaneamente a receiveFalso() al reescriir el atributo mensaje---*/
-	byte[] mensaje;
+	byte[] mensajef;
 
 	public void sendFalso(int dest,byte[] message){
-		System.arraycopy(message,0,mensaje,0,message.length);
+		System.arraycopy(message,0,mensajef,0,message.length);
 		notificarHilos();  //Reanuda la ejecucion del proceso que haya invocado a receiveFalso()
 	}
 
 	public void receiveFalso(int addr,byte[] message){
-		mensaje=message;
+		mensajef=message;
 		suspenderProceso();
 	}
 	/*---------------------------------------------------------*/
@@ -49,24 +62,52 @@ public final class MicroNucleo extends MicroNucleoBase{
 	 * 
 	 */
 	protected void sendVerdadero(int dest,byte[] message){
-		sendFalso(dest,message);
+		//sendFalso(dest,message);
 		imprimeln("El proceso invocante es el "+super.dameIdProceso());
+		ParMaquinaProceso pmp = tablaEmision.get(dest);
 		
-		//lo siguiente aplica para la pr�ctica #2
-		/*ParMaquinaProceso pmp=dameDestinatarioDesdeInterfaz();
+		if(pmp == null){
+			println("Maquina-proceso no encontrados, obteniendo desde interfaz");
+			pmp = dameDestinatarioDesdeInterfaz();
+		}
+			
+		
 		imprimeln("Enviando mensaje a IP="+pmp.dameIP()+" ID="+pmp.dameID());
+		ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
+		solicitud.setReceptor(pmp.dameID());
+		solicitud.setEmisor(super.dameIdProceso());
+		DatagramSocket socketEmision;
+		DatagramPacket dp;
+		println("Origen empaquetado: "+solicitud.getEmisor());
+		println("Destino empaquetado: "+solicitud.getReceptor());
+		try{
+			socketEmision=dameSocketEmision();  
+			println("Socket obtenido");
+			dp=new DatagramPacket(message,message.length,InetAddress.getByName(pmp.dameIP()),damePuertoRecepcion());
+			println("Paquete creado, enviando...");
+			socketEmision.send(dp);
+			println("Enviado");
+		}catch(SocketException e){
+			println("Error iniciando socket: "+e.getMessage());
+		}catch(UnknownHostException e){
+			println("UnknownHostException: "+e.getMessage());
+		}catch(IOException e){
+			println("IOException: "+e.getMessage());
+		}
 		//no descomentar la sig. linea en la pŕactica 2
-		suspenderProceso();   //esta invocacion depende de si se requiere bloquear al hilo de control invocador
-		*/ 
+		//suspenderProceso();   //esta invocacion depende de si se requiere bloquear al hilo de control invocador
+		
 	}
 
 	/**
 	 * 
 	 */
 	protected void receiveVerdadero(int addr,byte[] message){
-		receiveFalso(addr,message);
+		println("Receive invocado, addr: "+addr);
+		
+		tablaRecepcion.put(addr, message);
 		//el siguiente aplica para la pr�ctica #2
-		//suspenderProceso();
+		suspenderProceso();
 	}
 
 	/**
@@ -91,16 +132,57 @@ public final class MicroNucleo extends MicroNucleoBase{
 	 * 
 	 */
 	public void run(){
-
+		DatagramSocket socket = dameSocketRecepcion();
+		
+		DatagramPacket dp;
+		byte[] buffer=new byte[1024];
+		dp=new DatagramPacket(buffer,buffer.length);
+		String ip;
+		int origen,destino;
 		while(seguirEsperandoDatagramas()){
+			
+			try {
+				println("Esperando recepcion en socket: "+this.damePuertoRecepcion());
+				socket.receive(dp);
+				println("Receive ocurrido, proceso Despertado");
+				ip = dp.getAddress().getHostName();	
+				println("IP: "+ip);
+				ConvertidorPaquetes solicitud = new ConvertidorPaquetes(buffer);
+				origen = solicitud.getEmisor();
+				destino = solicitud.getReceptor();
+				println("Origen: "+origen+", Destino: "+destino);
+				Proceso p= this.dameProcesoLocal(destino);
+				if(p == null){
+					//Address Unknown
+					println("Address Unknown");
+					
+				}else{
+					println("Proceso encontrado: "+destino);
+					if(!tablaRecepcion.containsKey(destino)){
+						//Try Again
+						println("Try Again");
+					}else{
+						byte[] bytes=tablaRecepcion.get(destino);
+						tablaRecepcion.remove(destino);
+						tablaEmision.put(origen, new MaquinaProceso(ip,origen));
+						System.arraycopy(buffer, 0, bytes, 0, buffer.length);
+						this.reanudarProceso(p);
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			/* Lo siguiente es reemplazable en la pr�ctica #2,
 			 * sin esto, en pr�ctica #1, seg�n el JRE, puede incrementar el uso de CPU
-			 */ 
-			try{
+			 */ 			
+			/*try{
 				sleep(60000);
 			}catch(InterruptedException e){
 				System.out.println("InterruptedException");
-			}
+			}*/
 		}
+		println("se dejo de esperar de recibir");
 	}
 }

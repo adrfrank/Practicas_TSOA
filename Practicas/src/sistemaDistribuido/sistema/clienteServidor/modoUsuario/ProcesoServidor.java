@@ -31,7 +31,7 @@ public class ProcesoServidor extends Proceso{
 		
 		
 		while(continuar()){
-			imprimeln("Invocando a receive()");
+			imprimeln("Invocando a receive() desde servidor: "+dameID());
 			Nucleo.receive(dameID(),solServidor);
 			ConvertidorPaquetes cp = new ConvertidorPaquetes(solServidor);
 			imprimeln("Procesando petición recibida del cliente");
@@ -77,8 +77,8 @@ public class ProcesoServidor extends Proceso{
 			cpResp.setData(respuesta);
 			Pausador.pausa(1000);  //sin esta línea es posible que Servidor solicite send antes que Cliente solicite receive
 			imprimeln("Señalamiento al núcleo para envío de mensaje");
-			imprimeln("enviando respuesta");
-			Nucleo.send(0,respServidor);
+			imprimeln("enviando respuesta al proceso: "+cp.getEmisor());
+			Nucleo.send(cp.getEmisor(),respServidor);
 		}
 	}
 }

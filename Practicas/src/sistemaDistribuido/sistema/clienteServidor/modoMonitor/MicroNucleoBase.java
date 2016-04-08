@@ -13,7 +13,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	private ParMaquinaProceso pmp;
 
 	/**
-	 * Práctica 1 - Reanuda la ejecución del proceso que le toque recibir mensaje
+	 * Prï¿½ctica 1 - Reanuda la ejecuciï¿½n del proceso que le toque recibir mensaje
 	 */
 	protected void notificarHilos(){
 		long[] procesos=super.getAllProcessIDs();
@@ -25,7 +25,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 			}
 			else{
 				/* por concurrencia, procesos[i] pudo haber contenido un id de proceso conocido
-				 * pero sólo hasta antes de llamar a dameProcesoLocal (en distribuido se provocaría un paquete AU)
+				 * pero sï¿½lo hasta antes de llamar a dameProcesoLocal (en distribuido se provocarï¿½a un paquete AU)
 				 */
 			}
 		}
@@ -40,14 +40,14 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Práctica 1 - Inicia el sistema para máquina local
+	 * Prï¿½ctica 1 - Inicia el sistema para mï¿½quina local
 	 */
 	public final synchronized void iniciarSistema(Escribano esc,int puertoEntrada){
 		super.initializeSystem(esc, puertoEntrada);
 	}
 
 	/**
-	 * Desde Práctica 2 - Inicia el sistema usando una fuente de información para IP e ID
+	 * Desde Prï¿½ctica 2 - Inicia el sistema usando una fuente de informaciï¿½n para IP e ID
 	 */
 	public final synchronized void iniciarSistema(Escribano esc,int puertoEntrada,ParMaquinaProceso pmp){
 		this.pmp=pmp;
@@ -55,7 +55,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Desde Práctica 1 - Cierra el sistema local
+	 * Desde Prï¿½ctica 1 - Cierra el sistema local
 	 */
 	public final synchronized void cerrarSistema(){
 		super.shutdownSystem();
@@ -76,7 +76,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 	
     /**
-     * Devuelve true si el kernel no ha recibido la instrucción de cerrarse 
+     * Devuelve true si el kernel no ha recibido la instrucciï¿½n de cerrarse 
      */
 	protected final boolean estaDisponible(){
 		return super.isSystemAvailable();
@@ -91,7 +91,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * A realizarse antes de que un hilo ya no pueda recibir servicios del núcleo
+	 * A realizarse antes de que un hilo ya no pueda recibir servicios del nï¿½cleo
 	 */
 	protected void finalizingThread(SystemThread p) {
 		// TODO Auto-generated method stub
@@ -127,7 +127,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Imprime texto más un salto de línea
+	 * Imprime texto mï¿½s un salto de lï¿½nea
 	 */
 	protected final void imprimeln(String s){
 		super.println(s);
@@ -141,49 +141,49 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Mismo que timprime más un salto de línea
+	 * Mismo que timprime mï¿½s un salto de lï¿½nea
 	 */
 	protected final void timprimeln(String s){
 		super.tprintln(s);
 	}
 
 	/**
-	 * Práctica 2 - Para obtener de la interfaz gráfica IP e ID del proceso destinatario
+	 * Prï¿½ctica 2 - Para obtener de la interfaz grï¿½fica IP e ID del proceso destinatario
 	 */
 	protected final ParMaquinaProceso dameDestinatarioDesdeInterfaz(){
 		return pmp;
 	}
 
 	/**
-	 * Práctica 2 - Socket para enviar datagramas
+	 * Prï¿½ctica 2 - Socket para enviar datagramas
 	 */
 	protected final DatagramSocket dameSocketEmision(){
 		return super.getSendSocket();
 	}
 
 	/**
-	 * Práctica 2 - Socket para recibir datagramas
+	 * Prï¿½ctica 2 - Socket para recibir datagramas
 	 */
 	protected final DatagramSocket dameSocketRecepcion(){
 		return super.getReceiveSocket();
 	}
 
 	/**
-	 * Práctica 2 - Puerto para recibir mensajes
+	 * Prï¿½ctica 2 - Puerto para recibir mensajes
 	 */
 	protected final int damePuertoRecepcion(){
 		return super.getReceivePort();
 	}
 
 	/**
-	 * Práctica 2 - devuelve distinto de null si el proceso des existe en esta máquina 
+	 * Prï¿½ctica 2 - devuelve distinto de null si el proceso des existe en esta mï¿½quina 
 	 */
 	protected final Proceso dameProcesoLocal(int dest){
 		return (Proceso)super.getLocalThread(dest);
 	}
 
 	/**
-	 * Práctica 2 - Invocado desde MicroKernelBase
+	 * Prï¿½ctica 2 - Invocado desde MicroKernelBase
 	 */
 	protected final void sendImplemented(int dest,byte[] message){
 		if (estaDisponible()){
@@ -196,7 +196,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Práctica 5 - Invocado desde MicroKernelBase
+	 * Prï¿½ctica 5 - Invocado desde MicroKernelBase
 	 */
 	protected final void sendImplemented(String dest, byte[] message) {
 		if (estaDisponible()){
@@ -209,11 +209,11 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Práctica 2 - Invocable por un proceso para recibir un mensaje
+	 * Prï¿½ctica 2 - Invocable por un proceso para recibir un mensaje
 	 */
 	public final void receive(int addr,byte[] message){
 		if (estaDisponible()){
-			timprimeln("solicita recepción bloqueante de mensaje.");
+			timprimeln("solicita recepciÃ³n bloqueante de mensaje.");
 			receiveVerdadero(addr,message);
 		}
 		else{
@@ -222,42 +222,42 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Práctica 2 - Devuelve true mientras el kernel no se le solicite cerrar desde la IG
+	 * Prï¿½ctica 2 - Devuelve true mientras el kernel no se le solicite cerrar desde la IG
 	 */
 	protected boolean seguirEsperandoDatagramas(){
 		return super.isWaitingForDatagrams();
 	}
 
 	/**
-	 * Desde Práctica 1 - Detiene la ejecución de un Proceso 
+	 * Desde Prï¿½ctica 1 - Detiene la ejecuciï¿½n de un Proceso 
 	 */
 	public final void suspenderProceso(){
 		super.suspendThread();
 	}
 
 	/**
-	 * Desde Práctica 1 - Reanuda la ejecución de un Proceso
+	 * Desde Prï¿½ctica 1 - Reanuda la ejecuciï¿½n de un Proceso
 	 */
 	public final void reanudarProceso(SystemThread t){
 		super.resumeThread(t);
 	}
 	
 	/**
-	 * Desde Práctica 2 - Devuelve el identificador único del proceso invocador
+	 * Desde Prï¿½ctica 2 - Devuelve el identificador ï¿½nico del proceso invocador
 	 */
 	public int dameIdProceso(){
 		return (int)super.getProcessID();
 	}
 
 	/**
-	 * Desde Práctica 6 - Devuelve el identificador único del hilo invocador
+	 * Desde Prï¿½ctica 6 - Devuelve el identificador ï¿½nico del hilo invocador
 	 */
 	public int dameIdHilo(){
 		return (int)super.getThreadID();
 	}
 
 	/**
-	 * Práctica 5 - Para envío no bloqueante de mensaje
+	 * Prï¿½ctica 5 - Para envï¿½o no bloqueante de mensaje
 	 */
 	public final void sendNB(int dest,byte[] message){
 		if (estaDisponible()){
@@ -270,7 +270,7 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 
 	/**
-	 * Práctica 5 - Para recepción no bloqueante de mensaje
+	 * Prï¿½ctica 5 - Para recepciï¿½n no bloqueante de mensaje
 	 */
 	public final void receiveNB(int addr,byte[] message){
 		if (estaDisponible()){
@@ -283,38 +283,38 @@ public abstract class MicroNucleoBase extends MicroKernelBase{
 	}
 	
 	/**
-	 * Práctica 5 - Devuelva true si la inicialización de módulos:
+	 * Prï¿½ctica 5 - Devuelva true si la inicializaciï¿½n de mï¿½dulos:
 	 * Direccionamiento, Bloqueo, Almacenamiento y Confiabilidad ha sido exitosa
 	 */
 	protected abstract boolean iniciarModulos();
 
 	/**
-	 * Práctica 2 - A implementar por alumn@s
+	 * Prï¿½ctica 2 - A implementar por alumn@s
 	 */
 	protected abstract void sendVerdadero(int dest,byte[] message);
 
 	/**
-	 * Práctica 5 - A implementar por alumn@os
+	 * Prï¿½ctica 5 - A implementar por alumn@os
 	 */
 	protected abstract void sendVerdadero(String dest,byte[] message);
 
 	/**
-	 * Práctica 2 - A implementar por alumn@s
+	 * Prï¿½ctica 2 - A implementar por alumn@s
 	 */
 	protected abstract void receiveVerdadero(int addr,byte[] message);
 
 	/**
-	 * Práctica 5 - A implementar optativamente por alumn@s
+	 * Prï¿½ctica 5 - A implementar optativamente por alumn@s
 	 */
 	protected abstract void sendNBVerdadero(int dest,byte[] message);
 
 	/**
-	 * Práctica 5 - A implementar optativamente por alumn@s
+	 * Prï¿½ctica 5 - A implementar optativamente por alumn@s
 	 */
 	protected abstract void receiveNBVerdadero(int addr,byte[] message);
 
 	/**
-	 * Práctica 2 - A implementar por alumn@s
+	 * Prï¿½ctica 2 - A implementar por alumn@s
 	 */
 	public void run(){
 	}

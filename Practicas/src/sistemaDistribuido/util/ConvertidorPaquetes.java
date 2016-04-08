@@ -30,7 +30,8 @@ public class ConvertidorPaquetes {
 		return tmp;
 	}
 	public void setEmisor(int id){
-		
+		byte[] btmp = Parametros.empaquetar(id);
+		System.arraycopy(btmp, 0, bytes, EMISOR_INDEX, EMISOR_LENGTH);
 	}
 	public int getReceptor(){
 		byte[] btmp = new byte[RECEPTOR_LENGTH];
