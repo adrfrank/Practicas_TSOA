@@ -2,6 +2,7 @@ package sistemaDistribuido.visual.rpc;
 
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
 import sistemaDistribuido.sistema.rpc.modoUsuario.ProcesoCliente;
+import sistemaDistribuido.util.OperatorHelper;
 import sistemaDistribuido.visual.clienteServidor.ProcesoFrame;
 import java.awt.Panel;
 import java.awt.TextField;
@@ -39,19 +40,19 @@ public class ClienteFrame extends ProcesoFrame{
 		campo4=new TextField(10);
 		pSolicitud.setLayout(new GridLayout(5,1));
 
-		pcodop1.add(new Label("CREAR >> "));
+		pcodop1.add(new Label("Suma >> "));
 		pcodop1.add(new Label("Param 1:"));
 		pcodop1.add(campo1);
 
-		pcodop2.add(new Label("LEER >> "));
+		pcodop2.add(new Label("Resta >> "));
 		pcodop2.add(new Label("Param 1:"));
 		pcodop2.add(campo2);
 
-		pcodop3.add(new Label("ESCRIBIR >> "));
+		pcodop3.add(new Label("Sumatoria >> "));
 		pcodop3.add(new Label("Param 1:"));
 		pcodop3.add(campo3);
 
-		pcodop4.add(new Label("ELIMINAR >> "));
+		pcodop4.add(new Label("Productoria >> "));
 		pcodop4.add(new Label("Param 1:"));
 		pcodop4.add(campo4);
 
@@ -73,8 +74,33 @@ public class ClienteFrame extends ProcesoFrame{
 			String com=e.getActionCommand();
 			if (com.equals("Solicitar")){
 				botonSolicitud.setEnabled(false);
+				int[] ops;
+				ops = OperatorHelper.GetOperators(campo1.getText());
+				if(ops.length >= 2 ){
+					proc.setSum1(ops[0]);
+					proc.setSum2(ops[1]);					
+				}
+				
+				ops = OperatorHelper.GetOperators(campo2.getText());
+				if(ops.length >= 2 ){
+					proc.setMinuendo(ops[0]);
+					proc.setSustraendo(ops[1]);					
+				}
+				
+				ops = OperatorHelper.GetOperators(campo3.getText());
+				if(ops.length >= 2 ){
+					proc.setMinuendo(ops[0]);
+					proc.setSustraendo(ops[1]);					
+				}
+				ops = OperatorHelper.GetOperators(campo4.getText());
+				if(ops.length >= 2 ){
+					proc.setMinuendo(ops[0]);
+					proc.setSustraendo(ops[1]);					
+				}
+				
 				//...
 				Nucleo.reanudarProceso(proc);
+				botonSolicitud.setEnabled(true);
 			}
 		}
 	}
