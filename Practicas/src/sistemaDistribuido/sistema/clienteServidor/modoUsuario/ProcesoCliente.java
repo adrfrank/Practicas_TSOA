@@ -46,6 +46,15 @@ public class ProcesoCliente extends Proceso{
 			Nucleo.receive(dameID(),respCliente);
 			imprimeln("Procesando respuesta recibida del servidor");
 			ConvertidorPaquetes resp = new ConvertidorPaquetes(respCliente);
+			println("Codigo: "+resp.getOptCode());
+			println("Origen: "+resp.getEmisor());
+			println("Destino: "+resp.getReceptor());
+			if(resp.getOptCode() == -1){
+				println("Servidor envioa TA");
+			}if(resp.getOptCode() == -2){
+				println("Servidor envioa AU");
+				
+			}
 			String dato = resp.getStringData();
 			imprimeln("Proceso de la operación: "+dato);
 		}

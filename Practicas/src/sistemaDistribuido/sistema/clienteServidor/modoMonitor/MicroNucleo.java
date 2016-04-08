@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.MicroNucleoBase;
 import sistemaDistribuido.sistema.clienteServidor.modoUsuario.Proceso;
 import sistemaDistribuido.util.ConvertidorPaquetes;
+import sistemaDistribuido.util.Pausador;
 
 /**
  * 
@@ -106,7 +107,7 @@ public final class MicroNucleo extends MicroNucleoBase{
 		println("Receive invocado, addr: "+addr);
 		
 		tablaRecepcion.put(addr, message);
-		//el siguiente aplica para la prï¿½ctica #2
+		//el siguiente aplica para la práctica #2
 		suspenderProceso();
 	}
 
@@ -128,12 +129,29 @@ public final class MicroNucleo extends MicroNucleoBase{
 	protected void receiveNBVerdadero(int addr,byte[] message){
 	}
 
+	protected void sendErr(int addr, String ip, short errType){
+		byte[] errMessage = new byte[ConvertidorPaquetes.SOL_LENGTH];
+		ConvertidorPaquetes solicitud = new ConvertidorPaquetes(errMessage);
+		solicitud.setEmisor(this.dameIdProceso());
+		solicitud.setReceptor(addr);
+		solicitud.setOptCode(errType);
+		tablaEmision.put(addr, new MaquinaProceso(ip,addr));
+		this.send(addr, errMessage);
+	}
+	
+	protected void sendTA(int addr,String ip){
+		sendErr(addr,ip,(short)-1);		
+	}
+	
+	protected void sendAU(int addr, String ip){
+		sendErr(addr,ip,(short)-2);				
+	}
+	
 	/**
 	 * 
 	 */
 	public void run(){
-		DatagramSocket socket = dameSocketRecepcion();
-		
+		DatagramSocket socket = dameSocketRecepcion();		
 		DatagramPacket dp;
 		byte[] buffer=new byte[1024];
 		dp=new DatagramPacket(buffer,buffer.length);
@@ -155,12 +173,17 @@ public final class MicroNucleo extends MicroNucleoBase{
 				if(p == null){
 					//Address Unknown
 					println("Address Unknown");
+					this.sendAU(origen, ip);
+					Pausador.pausa(1000);
 					
 				}else{
 					println("Proceso encontrado: "+destino);
 					if(!tablaRecepcion.containsKey(destino)){
 						//Try Again
 						println("Try Again");
+						this.sendTA(origen, ip);
+						Pausador.pausa(1000);
+						
 					}else{
 						byte[] bytes=tablaRecepcion.get(destino);
 						tablaRecepcion.remove(destino);

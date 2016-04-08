@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/adrfrank/projects/tsoa/practicas_tsoa/MicroKernelBasedSystem.jar"/>
+	<classpathentry kind="lib" path="D:/Proyectos/Practicas_TSOA/MicroKernelBasedSystem.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
