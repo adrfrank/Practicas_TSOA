@@ -18,13 +18,13 @@ import sistemaDistribuido.util.Pausador;
  */
 public final class MicroNucleo extends MicroNucleoBase{
 	private static MicroNucleo nucleo=new MicroNucleo();
-	private Hashtable<Integer,MaquinaProceso > tablaEmision;
+	private Hashtable<Integer,ParMaquinaProceso > tablaEmision;
 	private Hashtable<Integer,byte[]> tablaRecepcion;
 	/**
 	 * 
 	 */
 	private MicroNucleo(){
-		tablaEmision = new Hashtable<Integer,MaquinaProceso>();
+		tablaEmision = new Hashtable<Integer,ParMaquinaProceso>();
 		tablaRecepcion = new Hashtable<Integer,byte[]>();
 	}
 
@@ -65,15 +65,19 @@ public final class MicroNucleo extends MicroNucleoBase{
 	protected void sendVerdadero(int dest,byte[] message){
 		//sendFalso(dest,message);
 		imprimeln("El proceso invocante es el "+super.dameIdProceso());
+		println("Buscando en listas locales el par (máquina, proceso) que corresponde al parámetro dest de la llamada a send");
 		ParMaquinaProceso pmp = tablaEmision.get(dest);
 		
 		if(pmp == null){
-			println("Maquina-proceso no encontrados, obteniendo desde interfaz");
+			println("Enviando mensaje de búsqueda del servidor”");
 			pmp = dameDestinatarioDesdeInterfaz();
+			println("Recibido mensaje que contiene la ubicación (máquina, proceso) del servidor");
+			tablaEmision.put(pmp.dameID(), pmp);
 		}
 			
 		
-		imprimeln("Enviando mensaje a IP="+pmp.dameIP()+" ID="+pmp.dameID());
+		
+		imprimeln("Completando campos de encabezado del mensaje a ser enviado");
 		ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
 		solicitud.setReceptor(pmp.dameID());
 		solicitud.setEmisor(super.dameIdProceso());
@@ -85,8 +89,8 @@ public final class MicroNucleo extends MicroNucleoBase{
 			socketEmision=dameSocketEmision();  
 			println("Socket obtenido");
 			dp=new DatagramPacket(message,message.length,InetAddress.getByName(pmp.dameIP()),damePuertoRecepcion());
-			println("Paquete creado, enviando...");
-			socketEmision.send(dp);
+			imprimeln("Enviando mensaje a IP="+pmp.dameIP()+" ID="+pmp.dameID());
+			socketEmision.send(dp);			
 			println("Enviado");
 		}catch(SocketException e){
 			println("Error iniciando socket: "+e.getMessage());
@@ -162,17 +166,19 @@ public final class MicroNucleo extends MicroNucleoBase{
 			try {
 				println("Esperando recepcion en socket: "+this.damePuertoRecepcion());
 				socket.receive(dp);
-				println("Receive ocurrido, proceso Despertado");
+				println("Recibido mensaje proveniente de la red");
+				println("Copiando el mensaje hacia el espacio del proceso");
 				ip = dp.getAddress().getHostName();	
 				println("IP: "+ip);
 				ConvertidorPaquetes solicitud = new ConvertidorPaquetes(buffer);
 				origen = solicitud.getEmisor();
 				destino = solicitud.getReceptor();
 				println("Origen: "+origen+", Destino: "+destino);
+				println("Buscando proceso correspondiente al campo dest del mensaje recibido");
 				Proceso p= this.dameProcesoLocal(destino);
 				if(p == null){
 					//Address Unknown
-					println("Address Unknown");
+					println("Proceso destinatario no encontrado según campo dest del mensaje recibido");
 					this.sendAU(origen, ip);
 					Pausador.pausa(1000);
 					
@@ -206,6 +212,6 @@ public final class MicroNucleo extends MicroNucleoBase{
 				System.out.println("InterruptedException");
 			}*/
 		}
-		println("se dejo de esperar de recibir");
+		
 	}
 }

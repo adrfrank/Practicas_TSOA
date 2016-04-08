@@ -54,9 +54,12 @@ public class ProcesoCliente extends Proceso{
 			}if(resp.getOptCode() == -2){
 				println("Servidor envioa AU");
 				
+			}else{
+				String dato = resp.getStringData();
+				imprimeln("Proceso de la operación: "+dato);
+				
 			}
-			String dato = resp.getStringData();
-			imprimeln("Proceso de la operaciÃ³n: "+dato);
+			
 		}
 		
 	}
