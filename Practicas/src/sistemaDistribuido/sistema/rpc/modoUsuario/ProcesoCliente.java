@@ -81,26 +81,12 @@ public class ProcesoCliente extends Proceso{
 	 */
 	public ProcesoCliente(Escribano esc){
 		super(esc);
-		
-		//TODO: Delete this
-		sum1=8;
-		sum2=7;
-		minuendo=6;
-		sustraendo=5;
-		factor1=4;
-		factor2=4;
-		dividendo=2;
-		divisor=1;
-		
-		lib=new LibreriaServidor(esc);  //primero debe funcionar con esta para subrutina servidor local
-		//lib=new LibreriaCliente(esc);  //luego con esta comentando la anterior, para subrutina servidor remota
+
+		lib=new LibreriaCliente(esc);  //luego con esta comentando la anterior, para subrutina servidor remota
 		start();
 	}
 
-	public int suma(int sum1, int sum2){
-		return lib.suma(sum1, sum2);
-	}
-	
+
 	/**
 	 * Programa Cliente
 	 */
@@ -112,14 +98,20 @@ public class ProcesoCliente extends Proceso{
 			imprimeln("Salio de suspenderProceso");
 
 			int resultado;
-			resultado=lib.suma(sum1,sum2);
-			imprimeln("suma="+resultado);
-			resultado=lib.resta(minuendo,sustraendo);
-			imprimeln("diferencia="+resultado);
-			resultado=lib.multiplicacion(factor1,factor2);
-			imprimeln("multiplicacion="+resultado);
-			resultado=lib.division(dividendo,divisor);
-			imprimeln("cociente="+resultado);
+			try {
+				resultado=lib.suma(sum1,sum2);
+				imprimeln("suma="+resultado);
+				resultado=lib.resta(minuendo,sustraendo);
+				imprimeln("diferencia="+resultado);
+				resultado=lib.multiplicacion(factor1,factor2);
+				imprimeln("multiplicacion="+resultado);
+				resultado=lib.division(dividendo,divisor);
+				imprimeln("cociente="+resultado);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				imprimeln("Error de comunicacion");
+			}
 			
 		}
 		imprimeln("Fin del cliente.");

@@ -41,19 +41,19 @@ public class ClienteFrame extends ProcesoFrame{
 		pSolicitud.setLayout(new GridLayout(5,1));
 
 		pcodop1.add(new Label("Suma >> "));
-		pcodop1.add(new Label("Param 1:"));
+		pcodop1.add(new Label("x y"));
 		pcodop1.add(campo1);
 
 		pcodop2.add(new Label("Resta >> "));
-		pcodop2.add(new Label("Param 1:"));
+		pcodop2.add(new Label("x y"));
 		pcodop2.add(campo2);
 
-		pcodop3.add(new Label("Sumatoria >> "));
-		pcodop3.add(new Label("Param 1:"));
+		pcodop3.add(new Label("multiplicacion >> "));
+		pcodop3.add(new Label("x y"));
 		pcodop3.add(campo3);
 
-		pcodop4.add(new Label("Productoria >> "));
-		pcodop4.add(new Label("Param 1:"));
+		pcodop4.add(new Label("cociente >> "));
+		pcodop4.add(new Label("x y"));
 		pcodop4.add(campo4);
 
 		botonSolicitud=new Button("Solicitar");
@@ -89,13 +89,14 @@ public class ClienteFrame extends ProcesoFrame{
 				
 				ops = OperatorHelper.GetOperators(campo3.getText());
 				if(ops.length >= 2 ){
-					proc.setMinuendo(ops[0]);
-					proc.setSustraendo(ops[1]);					
+					proc.setFactor1(ops[0]);
+					proc.setFactor2(ops[1]);					
 				}
 				ops = OperatorHelper.GetOperators(campo4.getText());
 				if(ops.length >= 2 ){
-					proc.setMinuendo(ops[0]);
-					proc.setSustraendo(ops[1]);					
+					proc.setDividendo(ops[0]);	
+					proc.setDivisor(ops[1]);
+									
 				}
 				
 				//...
