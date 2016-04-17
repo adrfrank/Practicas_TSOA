@@ -1,12 +1,13 @@
 package sistemaDistribuido.sistema.rpc.modoMonitor;
 
-//import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;   //para práctica 4
+import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;   //para prï¿½ctica 4
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.ParMaquinaProceso;
 import sistemaDistribuido.sistema.rpc.modoUsuario.ProgramaConector;
 
 public class RPC{
 	private static ProgramaConector conector;
-
+	public static int ServidorNoEncontrado = -99999;
+	
 	/**
 	 * 
 	 */
@@ -20,8 +21,12 @@ public class RPC{
 	 * Regresa un dest para la llamada a send(dest,message).
 	 */
 	public static int importarInterfaz(String nombreServidor,String version){
-		//asa=conector.busqueda()
-		return 0;
+		ParMaquinaProceso asa=conector.busqueda(nombreServidor,version);
+		if(asa == null){
+			return ServidorNoEncontrado;
+		}
+		Nucleo.nucleo.registrarAsa(asa);
+		return asa.dameID();
 	}
 
 	/**
@@ -29,8 +34,7 @@ public class RPC{
 	 * Regresa una identificacionUnica para el deregistro.
 	 */
 	public static int exportarInterfaz(String nombreServidor,String version,ParMaquinaProceso asa){
-		//conector.registro(nombreServidor,version,asa);
-		return 0;
+		return conector.registro(nombreServidor,version,asa);
 	}
 
 	/**
@@ -38,6 +42,12 @@ public class RPC{
 	 * Regresa el status del deregistro, true significa llevado a cabo.
 	 */
 	public static boolean deregistrarInterfaz(String nombreServidor,String version,int identificacionUnica){
-		return true;
+		boolean result = conector.desregistro(nombreServidor, version, identificacionUnica);
+		if(result)
+			Nucleo.imprimeln("Desregistrado");
+		else
+			Nucleo.imprimeln("Problema desregistrando");
+		
+		return result;
 	}
 }

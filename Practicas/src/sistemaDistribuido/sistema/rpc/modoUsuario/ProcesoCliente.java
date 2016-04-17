@@ -10,8 +10,16 @@ import sistemaDistribuido.util.Escribano;
 public class ProcesoCliente extends Proceso{
 	private Libreria lib;
 	int sum1,sum2,minuendo,sustraendo,factor1,factor2,dividendo,divisor;
+	int[] sumandos;
 	
-	
+	public int[] getSumandos() {
+		return sumandos;
+	}
+
+	public void setSumandos(int[] sumandos) {
+		this.sumandos = sumandos;
+	}
+
 	public int getSum1() {
 		return sum1;
 	}
@@ -105,8 +113,10 @@ public class ProcesoCliente extends Proceso{
 				imprimeln("diferencia="+resultado);
 				resultado=lib.multiplicacion(factor1,factor2);
 				imprimeln("multiplicacion="+resultado);
-				resultado=lib.division(dividendo,divisor);
-				imprimeln("cociente="+resultado);
+//				resultado=lib.division(dividendo,divisor);
+//				imprimeln("cociente="+resultado);
+				resultado=lib.sumatoria(sumandos);
+				imprimeln("Sumatoria="+resultado);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();

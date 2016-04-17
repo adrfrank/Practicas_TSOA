@@ -1,10 +1,15 @@
 package sistemaDistribuido.sistema.clienteServidor.modoUsuario;
 
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import microKernelBasedSystem.system.clientServer.userMode.threadPackage.SystemProcess;
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.MicroNucleo;
 import sistemaDistribuido.util.Escribano;
+import sistemaDistribuido.sistema.clienteServidor.modoMonitor.ParMaquinaProceso;
+import sistemaDistribuido.sistema.clienteServidor.modoMonitor.MaquinaProceso;
 
 /**
  * 
@@ -73,4 +78,20 @@ public abstract class Proceso extends SystemProcess{
 	protected void shutdown(){
 		terminar();
 	}
+	
+	public ParMaquinaProceso dameMaquinaProceso(){
+		MaquinaProceso mp=null;
+		try {
+			int id = this.dameID();
+			String ip = InetAddress.getLocalHost().getHostAddress();
+			mp = new MaquinaProceso(ip,id);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mp;
+		
+		
+	}
+	
 }

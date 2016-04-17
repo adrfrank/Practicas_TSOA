@@ -1,6 +1,6 @@
 package sistemaDistribuido.sistema.rpc.modoUsuario;
 
-//import sistemaDistribuido.sistema.rpc.modoMonitor.RPC;   //para pr�ctica 4
+import sistemaDistribuido.sistema.rpc.modoMonitor.RPC;   //para práctica 4
 import java.util.Stack;
 
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
@@ -13,6 +13,9 @@ import sistemaDistribuido.util.Escribano;
  */
 public class ProcesoServidor extends Proceso{
 	private LibreriaServidor ls;   //para pr�ctica 3
+	private int idUnico;
+	public static String ServerName="MathServer";
+	public static String ServerVersion= "1.0";
 
 	/**
 	 * 
@@ -28,19 +31,28 @@ public class ProcesoServidor extends Proceso{
 	 */
 	public void run(){
 		imprimeln("Proceso servidor en ejecucion.");
-		//idUnico=RPC.exportarInterfaz("FileServer", "3.1", asa)  //para pr�ctica 4
+		idUnico=RPC.exportarInterfaz(ServerName, ServerVersion, this.dameMaquinaProceso());  //para pr�ctica 4
 		byte[] message = new byte[ConvertidorPaquetes.SOL_LENGTH];
 		while(continuar()){
 			Nucleo.receive(dameID(),message);
-			imprimeln("Paquete recibido");
-			ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
-			byte[] respMessage = ProcesarRespuesta(solicitud);
-			imprimeln("Enviando respuesta");
-			Nucleo.send(solicitud.getEmisor(), respMessage);
+			try {
+				imprimeln("Paquete recibido");
+				ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
+				byte[] respMessage = ProcesarRespuesta(solicitud);
+				imprimeln("Enviando respuesta");
+				Nucleo.send(solicitud.getEmisor(), respMessage);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				imprimeln("Algo malo pasó xD");
+			}
 			
 		}
-
-		//RPC.deregistrarInterfaz(nombreServidor, version, idUnico)  //para pr�ctica 4
+		
+		boolean result=RPC.deregistrarInterfaz(ServerName, ServerVersion, idUnico) ; //para pr�ctica 4
+		if(result)
+			imprimeln("Desregistrado");
+		else
+			imprimeln("Problema desregistrando");
 	}
 	
 	byte[] ProcesarRespuesta(ConvertidorPaquetes solicitud){

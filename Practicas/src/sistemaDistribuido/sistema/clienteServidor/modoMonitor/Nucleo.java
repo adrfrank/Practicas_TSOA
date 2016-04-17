@@ -73,4 +73,9 @@ public class Nucleo{
 	public static void iniciarSistema(Escribano wri, int puertoEntrada, int outputPort) {
 		nucleo.iniciarSistema(wri, puertoEntrada);
 	}
+
+	public static void imprimeln(String string) {
+		nucleo.imprimeln(string);
+		
+	}
 }

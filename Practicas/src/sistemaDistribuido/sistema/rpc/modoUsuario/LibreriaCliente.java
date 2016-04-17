@@ -1,6 +1,6 @@
 package sistemaDistribuido.sistema.rpc.modoUsuario;
 
-//import sistemaDistribuido.sistema.rpc.modoMonitor.RPC;  //para pr�ctica 4
+import sistemaDistribuido.sistema.rpc.modoMonitor.RPC;  //para pr�ctica 4
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
 import sistemaDistribuido.sistema.rpc.modoUsuario.Libreria;
 import sistemaDistribuido.util.ConvertidorPaquetes;
@@ -28,7 +28,11 @@ public class LibreriaCliente extends Libreria{
 		solicitud.setOptCode(SUMA);
 		imprimeln("Ordena parametros dentro del buffer");
 		solicitud.setOperationParameters((short)2, stack);
-		//asaDest=RPC.importarInterfaz(nombreServidor, version)  //para pr�ctica 4
+		asaDest=RPC.importarInterfaz(ProcesoServidor.ServerName, ProcesoServidor.ServerVersion);  //para pr�ctica 4
+		if(asaDest == RPC.ServidorNoEncontrado) {
+			stack.push(RPC.ServidorNoEncontrado);
+			return;
+		}
 		imprimeln("Llena los campos de encabezado");
 		Nucleo.send(asaDest,message);
 		//...
@@ -49,7 +53,11 @@ public class LibreriaCliente extends Libreria{
 		solicitud.setOptCode(RESTA);
 		imprimeln("Ordena parametros dentro del buffer");
 		solicitud.setOperationParameters((short)2, stack);
-		//asaDest=RPC.importarInterfaz(nombreServidor, version)  //para pr�ctica 4
+		asaDest=RPC.importarInterfaz(ProcesoServidor.ServerName, ProcesoServidor.ServerVersion);  //para pr�ctica 4
+		if(asaDest == RPC.ServidorNoEncontrado) {
+			stack.push(RPC.ServidorNoEncontrado);
+			return;
+		}
 		Nucleo.send(asaDest,message);
 		//...
 		byte[] respMessage=new byte[ConvertidorPaquetes.SOL_LENGTH];
@@ -69,7 +77,11 @@ public class LibreriaCliente extends Libreria{
 		solicitud.setOptCode(MULTIPLICACION);
 		imprimeln("Ordena parametros dentro del buffer");
 		solicitud.setOperationParameters((short)2, stack);
-		//asaDest=RPC.importarInterfaz(nombreServidor, version)  //para pr�ctica 4
+		asaDest=RPC.importarInterfaz(ProcesoServidor.ServerName, ProcesoServidor.ServerVersion);  //para pr�ctica 4
+		if(asaDest == RPC.ServidorNoEncontrado) {
+			stack.push(RPC.ServidorNoEncontrado);
+			return;
+		}
 		imprimeln("Llena los campos de encabezado");
 		Nucleo.send(asaDest,message);
 		//...
@@ -90,7 +102,11 @@ public class LibreriaCliente extends Libreria{
 		solicitud.setOptCode(DIVISION);
 		imprimeln("Ordena parametros dentro del buffer");
 		solicitud.setOperationParameters((short)2, stack);
-		//asaDest=RPC.importarInterfaz(nombreServidor, version)  //para pr�ctica 4
+		asaDest=RPC.importarInterfaz(ProcesoServidor.ServerName, ProcesoServidor.ServerVersion);  //para pr�ctica 4
+		if(asaDest == RPC.ServidorNoEncontrado) {
+			stack.push(RPC.ServidorNoEncontrado);
+			return;
+		}
 		imprimeln("Llena los campos de encabezado");
 		Nucleo.send(asaDest,message);
 		//...
@@ -108,7 +124,11 @@ public class LibreriaCliente extends Libreria{
 		ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
 		solicitud.setOptCode(SUMATORIA);
 		solicitud.setOperationParameters((short)stack.size(), stack);
-		//asaDest=RPC.importarInterfaz(nombreServidor, version)  //para pr�ctica 4
+		asaDest=RPC.importarInterfaz(ProcesoServidor.ServerName, ProcesoServidor.ServerVersion);  //para pr�ctica 4
+		if(asaDest == RPC.ServidorNoEncontrado) {
+			stack.push(RPC.ServidorNoEncontrado);
+			return;
+		}
 		imprimeln("Llena los campos de encabezado");
 		Nucleo.send(asaDest,message);
 		//...

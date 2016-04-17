@@ -52,8 +52,8 @@ public class ClienteFrame extends ProcesoFrame{
 		pcodop3.add(new Label("x y"));
 		pcodop3.add(campo3);
 
-		pcodop4.add(new Label("cociente >> "));
-		pcodop4.add(new Label("x y"));
+		pcodop4.add(new Label("sumatoria >> "));
+		pcodop4.add(new Label("x y ..."));
 		pcodop4.add(campo4);
 
 		botonSolicitud=new Button("Solicitar");
@@ -92,11 +92,15 @@ public class ClienteFrame extends ProcesoFrame{
 					proc.setFactor1(ops[0]);
 					proc.setFactor2(ops[1]);					
 				}
+//				ops = OperatorHelper.GetOperators(campo4.getText());
+//				if(ops.length >= 2 ){
+//					proc.setDividendo(ops[0]);	
+//					proc.setDivisor(ops[1]);
+//									
+//				}
 				ops = OperatorHelper.GetOperators(campo4.getText());
-				if(ops.length >= 2 ){
-					proc.setDividendo(ops[0]);	
-					proc.setDivisor(ops[1]);
-									
+				if(ops.length >= 1 ){
+					proc.setSumandos(ops);
 				}
 				
 				//...

@@ -65,13 +65,13 @@ public final class MicroNucleo extends MicroNucleoBase{
 	protected void sendVerdadero(int dest,byte[] message){
 		//sendFalso(dest,message);
 		imprimeln("El proceso invocante es el "+super.dameIdProceso());
-		println("Buscando en listas locales el par (máquina, proceso) que corresponde al parámetro dest de la llamada a send");
+		println("Buscando en listas locales el par (mï¿½quina, proceso) que corresponde al parï¿½metro dest de la llamada a send");
 		ParMaquinaProceso pmp = tablaEmision.get(dest);
 		
 		if(pmp == null){
-			println("Enviando mensaje de búsqueda del servidor”");
+			println("Enviando mensaje de bï¿½squeda del servidorï¿½");
 			pmp = dameDestinatarioDesdeInterfaz();
-			println("Recibido mensaje que contiene la ubicación (máquina, proceso) del servidor");
+			println("Recibido mensaje que contiene la ubicaciï¿½n (mï¿½quina, proceso) del servidor");
 			tablaEmision.put(pmp.dameID(), pmp);
 		}
 			
@@ -104,6 +104,11 @@ public final class MicroNucleo extends MicroNucleoBase{
 		
 	}
 
+	public void registrarAsa(ParMaquinaProceso asa){
+		this.tablaEmision.put(asa.dameID(), asa);
+		
+	}
+	
 	/**
 	 * 
 	 */
@@ -111,7 +116,7 @@ public final class MicroNucleo extends MicroNucleoBase{
 		println("Receive invocado, addr: "+addr);
 		
 		tablaRecepcion.put(addr, message);
-		//el siguiente aplica para la práctica #2
+		//el siguiente aplica para la prï¿½ctica #2
 		suspenderProceso();
 	}
 
@@ -178,7 +183,7 @@ public final class MicroNucleo extends MicroNucleoBase{
 				Proceso p= this.dameProcesoLocal(destino);
 				if(p == null){
 					//Address Unknown
-					println("Proceso destinatario no encontrado según campo dest del mensaje recibido");
+					println("Proceso destinatario no encontrado segï¿½n campo dest del mensaje recibido");
 					this.sendAU(origen, ip);
 					Pausador.pausa(1000);
 					
