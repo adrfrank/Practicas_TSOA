@@ -10,6 +10,7 @@ import java.util.Hashtable;
 
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.MicroNucleoBase;
 import sistemaDistribuido.sistema.clienteServidor.modoUsuario.Proceso;
+import sistemaDistribuido.sistema.clienteServidor.modoUsuario.ServidorNombres;
 import sistemaDistribuido.util.ConvertidorPaquetes;
 import sistemaDistribuido.util.Pausador;
 
@@ -67,16 +68,16 @@ public final class MicroNucleo extends MicroNucleoBase{
 		imprimeln("El proceso invocante es el "+super.dameIdProceso());
 		println("Buscando en listas locales el par (m�quina, proceso) que corresponde al par�metro dest de la llamada a send");
 		ParMaquinaProceso pmp = tablaEmision.get(dest);
-		
+
 		if(pmp == null){
 			println("Enviando mensaje de b�squeda del servidor�");
 			pmp = dameDestinatarioDesdeInterfaz();
 			println("Recibido mensaje que contiene la ubicaci�n (m�quina, proceso) del servidor");
 			tablaEmision.put(pmp.dameID(), pmp);
 		}
-			
-		
-		
+
+
+
 		imprimeln("Completando campos de encabezado del mensaje a ser enviado");
 		ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
 		solicitud.setReceptor(pmp.dameID());
@@ -101,20 +102,20 @@ public final class MicroNucleo extends MicroNucleoBase{
 		}
 		//no descomentar la sig. linea en la pŕactica 2
 		//suspenderProceso();   //esta invocacion depende de si se requiere bloquear al hilo de control invocador
-		
+
 	}
 
 	public void registrarAsa(ParMaquinaProceso asa){
 		this.tablaEmision.put(asa.dameID(), asa);
-		
+
 	}
-	
+
 	/**
 	 * 
 	 */
 	protected void receiveVerdadero(int addr,byte[] message){
 		println("Receive invocado, addr: "+addr);
-		
+
 		tablaRecepcion.put(addr, message);
 		//el siguiente aplica para la pr�ctica #2
 		suspenderProceso();
@@ -124,6 +125,46 @@ public final class MicroNucleo extends MicroNucleoBase{
 	 * Para el(la) encargad@ de direccionamiento por servidor de nombres en pr�ctica 5  
 	 */
 	protected void sendVerdadero(String dest,byte[] message){
+		//sendFalso(dest,message);
+		imprimeln("El proceso invocante es el "+super.dameIdProceso());
+		println("Buscando en servidor de nombres el par (m�quina, proceso) que corresponde al par�metro dest de la llamada a send");
+		ParMaquinaProceso pmp = ServidorNombres.getInstance().buscarServidor(dest);
+
+		if(pmp == null){
+			println("La solicitud del proceso "+super.dameIdProceso()+" no puede ser atendida");
+			Proceso p = super.dameProcesoLocal(super.dameIdProceso());
+			p.println("La solicitud no puede ser atendida");
+			this.reanudarProceso(p);				
+		}else{
+			tablaEmision.put(pmp.dameID(), pmp);	
+
+
+			imprimeln("Completando campos de encabezado del mensaje a ser enviado");
+			ConvertidorPaquetes solicitud = new ConvertidorPaquetes(message);
+			solicitud.setReceptor(pmp.dameID());
+			solicitud.setEmisor(super.dameIdProceso());
+			DatagramSocket socketEmision;
+			DatagramPacket dp;
+			println("Origen empaquetado: "+solicitud.getEmisor());
+			println("Destino empaquetado: "+solicitud.getReceptor());
+			try{
+				socketEmision=dameSocketEmision();  
+				println("Socket obtenido");
+				dp=new DatagramPacket(message,message.length,InetAddress.getByName(pmp.dameIP()),damePuertoRecepcion());
+				imprimeln("Enviando mensaje a IP="+pmp.dameIP()+" ID="+pmp.dameID());
+				socketEmision.send(dp);			
+				println("Enviado");
+			}catch(SocketException e){
+				println("Error iniciando socket: "+e.getMessage());
+			}catch(UnknownHostException e){
+				println("UnknownHostException: "+e.getMessage());
+			}catch(IOException e){
+				println("IOException: "+e.getMessage());
+			}
+			//no descomentar la sig. linea en la pŕactica 2
+			//suspenderProceso();   //esta invocacion depende de si se requiere bloquear al hilo de control invocador
+		}
+
 	}
 
 	/**
@@ -147,15 +188,15 @@ public final class MicroNucleo extends MicroNucleoBase{
 		tablaEmision.put(addr, new MaquinaProceso(ip,addr));
 		this.send(addr, errMessage);
 	}
-	
+
 	protected void sendTA(int addr,String ip){
 		sendErr(addr,ip,(short)-1);		
 	}
-	
+
 	protected void sendAU(int addr, String ip){
 		sendErr(addr,ip,(short)-2);				
 	}
-	
+
 	/**
 	 * 
 	 */
@@ -167,7 +208,7 @@ public final class MicroNucleo extends MicroNucleoBase{
 		String ip;
 		int origen,destino;
 		while(seguirEsperandoDatagramas()){
-			
+
 			try {
 				println("Esperando recepcion en socket: "+this.damePuertoRecepcion());
 				socket.receive(dp);
@@ -186,7 +227,7 @@ public final class MicroNucleo extends MicroNucleoBase{
 					println("Proceso destinatario no encontrado seg�n campo dest del mensaje recibido");
 					this.sendAU(origen, ip);
 					Pausador.pausa(1000);
-					
+
 				}else{
 					println("Proceso encontrado: "+destino);
 					if(!tablaRecepcion.containsKey(destino)){
@@ -194,7 +235,7 @@ public final class MicroNucleo extends MicroNucleoBase{
 						println("Try Again");
 						this.sendTA(origen, ip);
 						Pausador.pausa(1000);
-						
+
 					}else{
 						byte[] bytes=tablaRecepcion.get(destino);
 						tablaRecepcion.remove(destino);
@@ -205,9 +246,9 @@ public final class MicroNucleo extends MicroNucleoBase{
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
-			
+
 			/* Lo siguiente es reemplazable en la pr�ctica #2,
 			 * sin esto, en pr�ctica #1, seg�n el JRE, puede incrementar el uso de CPU
 			 */ 			
@@ -217,6 +258,6 @@ public final class MicroNucleo extends MicroNucleoBase{
 				System.out.println("InterruptedException");
 			}*/
 		}
-		
+
 	}
 }

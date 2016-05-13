@@ -41,7 +41,8 @@ public class ProcesoCliente extends Proceso{
 			sol.setOptCode((short)code);
 			sol.setData(msg==null?"":msg);
 			imprimeln("Señalamiento al núcleo para envío de mensaje");
-			Nucleo.send(248,solCliente);
+			//Nucleo.send(248,solCliente);
+			Nucleo.send(ProcesoServidor.ServerName, solCliente);
 			imprimeln("Invocando a receive()");
 			Nucleo.receive(dameID(),respCliente);
 			imprimeln("Procesando respuesta recibida del servidor");
