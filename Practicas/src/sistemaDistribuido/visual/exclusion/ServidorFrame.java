@@ -1,6 +1,6 @@
 package sistemaDistribuido.visual.exclusion;
 
-import sistemaDistribuido.sistema.clienteServidor.modoUsuario.ProcesoServidor;
+import sistemaDistribuido.sistema.exclusion.modoUsuario.ProcesoServidor;
 import sistemaDistribuido.visual.clienteServidor.MicroNucleoFrame;
 import sistemaDistribuido.visual.clienteServidor.ProcesoFrame;
 

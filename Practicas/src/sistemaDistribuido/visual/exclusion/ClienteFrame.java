@@ -1,7 +1,7 @@
 package sistemaDistribuido.visual.exclusion;
 
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
-import sistemaDistribuido.sistema.clienteServidor.modoUsuario.ProcesoCliente;
+import sistemaDistribuido.sistema.exclusion.modoUsuario.ProcesoCliente;
 import sistemaDistribuido.visual.clienteServidor.MicroNucleoFrame;
 import sistemaDistribuido.visual.clienteServidor.ProcesoFrame;
 import java.awt.Label;

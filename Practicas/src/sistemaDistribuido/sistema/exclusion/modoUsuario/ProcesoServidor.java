@@ -25,7 +25,7 @@ public class ProcesoServidor extends Proceso{
 	 */
 	public void run(){
 		imprimeln("Inicio de proceso");
-		imprimeln("Proceso servidor en ejecucion.");
+		imprimeln("Proceso servidor en ejecucion. (Exclusión)");
 		byte[] solServidor=new byte[ConvertidorPaquetes.SOL_LENGTH];
 		byte[] respServidor;
 		
