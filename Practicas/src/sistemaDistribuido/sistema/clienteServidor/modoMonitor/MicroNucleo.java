@@ -205,7 +205,9 @@ public final class MicroNucleo extends MicroNucleoBase{
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+			}catch(Exception e){
+				
 			}
 			
 			/* Lo siguiente es reemplazable en la pr�ctica #2,

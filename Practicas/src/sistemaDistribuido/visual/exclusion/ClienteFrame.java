@@ -2,67 +2,126 @@ package sistemaDistribuido.visual.exclusion;
 
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
 import sistemaDistribuido.sistema.exclusion.modoUsuario.ProcesoCliente;
+import sistemaDistribuido.sistema.exclusion.modoUsuario.RecursosClienteListener;
 import sistemaDistribuido.visual.clienteServidor.MicroNucleoFrame;
 import sistemaDistribuido.visual.clienteServidor.ProcesoFrame;
-import java.awt.Label;
-import java.awt.TextField;
-import java.awt.Choice;
-import java.awt.Button;
-import java.awt.Panel;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.*;
+import java.awt.event.*;
 
-public class ClienteFrame extends ProcesoFrame{
+
+public class ClienteFrame extends ProcesoFrame implements RecursosClienteListener{
 	private static final long serialVersionUID=1;
 	private ProcesoCliente proc;
-	private Choice codigosOperacion;
-	private TextField campoMensaje;
-	private Button botonSolicitud;
-	private String codop1,codop2,codop3,codop4;
+
+	PanelSolicitudRecursos recursosPanel;
 
 	public ClienteFrame(MicroNucleoFrame frameNucleo){
 		super(frameNucleo,"Cliente de Archivo (exclusion)");
-		add("South",construirPanelSolicitud());
-		validate();
 		proc=new ProcesoCliente(this);
 		fijarProceso(proc);
+		proc.setListener(this);
+		//add("South",construirPanelSolicitud());
+		recursosPanel = new PanelSolicitudRecursos(proc.getRecursos());
+		recursosPanel.addListener(new ManejadorSolicitud());
+		add("South",recursosPanel);
+		validate();
+		
 	}
 
-	public Panel construirPanelSolicitud(){
-		Panel p=new Panel();
-		codigosOperacion=new Choice();
-		codop1="Crear";
-		codop2="Eliminar";
-		codop3="Leer";
-		codop4="Escribir";
-		codigosOperacion.add(codop1);
-		codigosOperacion.add(codop2);
-		codigosOperacion.add(codop3);
-		codigosOperacion.add(codop4);
-		campoMensaje=new TextField(10);
-		botonSolicitud=new Button("Solicitar");
-		botonSolicitud.addActionListener(new ManejadorSolicitud());
-		p.add(new Label("Operacion:"));
-		p.add(codigosOperacion);
-		p.add(new Label("Datos:"));
-		p.add(campoMensaje);
-		p.add(botonSolicitud);
-		return p;
-	}
+	
 
 	class ManejadorSolicitud implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
 			String com=e.getActionCommand();
 			if (com.equals("Solicitar")){
-				botonSolicitud.setEnabled(false);
-				com=codigosOperacion.getSelectedItem();
-				short code = (short)codigosOperacion.getSelectedIndex();
-				imprimeln("Solicitud a enviar: "+com);
-				imprimeln("Mensaje a enviar: "+campoMensaje.getText());
-				proc.sendMessage(code,campoMensaje.getText());
+				proc.sendMessage((short)3,"");
 				Nucleo.reanudarProceso(proc);
-				botonSolicitud.setEnabled(true);
+				
+			} else if(com.startsWith("sol,")){
+				int n = Integer.parseInt(com.split(",")[1]);
+				recursosPanel.setEnableSols(false);
+				recursosPanel.setEnableLibs(false);
+				proc.solicitarRecurso(n);
+				Nucleo.reanudarProceso(proc);
+				
+			}else if(com.startsWith("lib,")){
+				int n = Integer.parseInt(com.split(",")[1]);
+				proc.liberarRecurso(n);
+				Nucleo.reanudarProceso(proc);
 			}
 		}
+	}
+	
+	class PanelSolicitudRecursos extends Panel{
+		private static final long serialVersionUID = 1L;
+		String[] recursos;
+		Button[] btnSols, btnLibs;
+		Label[] lblRecs;
+		
+		public void setEnableSols(boolean state){
+			for(Button btn : btnSols){
+				btn.setEnabled(state);
+			}
+		}
+		
+		public void setEnableLibs(boolean state){
+			for(Button btn : btnLibs){
+				btn.setEnabled(state);
+			}
+		}
+		
+		public void setEnableSol(int n, boolean state){
+			btnSols[n].setEnabled(state);
+		}
+		
+		public void setEnableLib(int n,boolean state){
+			btnLibs[n].setEnabled(state);
+		}
+		
+		void addListener(ActionListener al){
+			for(Button btn : btnSols){
+				btn.addActionListener(al);
+			}
+			for(Button btn : btnLibs){
+				btn.addActionListener(al);
+			}
+		}
+		
+		public PanelSolicitudRecursos(String[] recursos){
+			this.recursos = recursos;
+			btnSols = new Button[recursos.length];
+			btnLibs = new Button[recursos.length];
+			lblRecs = new Label[recursos.length];
+			setLayout(new GridLayout(recursos.length,3));
+			for(int i=0; i < recursos.length; ++i){
+				btnSols[i] = new Button("Solicitar "+recursos[i]);
+				btnSols[i].setActionCommand("sol,"+i);
+				btnLibs[i] = new Button("Liberar "+recursos[i]);
+				btnLibs[i].setEnabled(false);
+				btnLibs[i].setActionCommand("lib,"+i);
+				lblRecs[i] = new Label(recursos[i]);
+				add(lblRecs[i]);
+				add(btnSols[i]);
+				add(btnLibs[i]);
+			}
+			
+		}
+
+		
+		
+	}
+
+	@Override
+	public void recursoConseguido(int recurso) {
+		this.recursosPanel.setEnableLib(recurso, true);
+		
+	}
+
+	@Override
+	public void recursoLiberado(int recurso) {
+		// TODO Auto-generated method stub
+		this.recursosPanel.setEnableLibs(false);
+		this.recursosPanel.setEnableSols(true);
+		
 	}
 }

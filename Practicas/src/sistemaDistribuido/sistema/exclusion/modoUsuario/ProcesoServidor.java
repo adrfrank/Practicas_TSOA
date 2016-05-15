@@ -1,23 +1,43 @@
 package sistemaDistribuido.sistema.exclusion.modoUsuario;
 
+import java.util.Hashtable;
+import java.util.LinkedList;
+
 import sistemaDistribuido.sistema.clienteServidor.modoMonitor.Nucleo;
 import sistemaDistribuido.sistema.clienteServidor.modoUsuario.Proceso;
-import sistemaDistribuido.util.ConvertidorPaquetes;
+import sistemaDistribuido.util.PaqueteRecurso;
 import sistemaDistribuido.util.Escribano;
-import sistemaDistribuido.util.ManejadorArchivos;
 import sistemaDistribuido.util.Pausador;
 
 /**
  * 
  */
 public class ProcesoServidor extends Proceso{
+	public static final String[] recursos= new String[]{"Rec 1","Rec 2","Rec 3","Rec 4",};
+	Hashtable<Byte,ManejadorRecurso> manejadoresRecursos;
+	RecursosServidorListener listener;
+	
+	public RecursosServidorListener getListener() {
+		return listener;
+	}
+
+	public void setListener(RecursosServidorListener listener) {
+		this.listener = listener;
+	}
 
 	/**
 	 * 
 	 */
 	public ProcesoServidor(Escribano esc){
 		super(esc);
+		manejadoresRecursos = new Hashtable<Byte,ManejadorRecurso>();
+		for(int i=0; i < recursos.length; ++i){
+			ManejadorRecurso m = new ManejadorRecurso((byte) i);
+			m.start();
+			manejadoresRecursos.put((byte) i, m);
+		}
 		start();
+		
 	}
 
 	/**
@@ -26,59 +46,93 @@ public class ProcesoServidor extends Proceso{
 	public void run(){
 		imprimeln("Inicio de proceso");
 		imprimeln("Proceso servidor en ejecucion. (Exclusión)");
-		byte[] solServidor=new byte[ConvertidorPaquetes.SOL_LENGTH];
-		byte[] respServidor;
-		
+		byte[] solServidor=new byte[PaqueteRecurso.SOL_LENGTH];		
 		
 		while(continuar()){
 			imprimeln("Invocando a receive() desde servidor: "+dameID());
 			Nucleo.receive(dameID(),solServidor);
-			ConvertidorPaquetes cp = new ConvertidorPaquetes(solServidor);
-			imprimeln("Procesando peticiÃ³n recibida del cliente");
-			short codop=cp.getOptCode();
-			String cdato = cp.getStringData();
-			String respuesta="";
-			ManejadorArchivos manArchivos = new ManejadorArchivos();
-			switch(codop){
-			case 0: //Crear
-				imprimeln("Operacion: crear");
-				imprimeln("Datos: "+cdato);
-				manArchivos.crear(cdato);
-				respuesta = "creado: "+cdato;
-				break;
-			case 1: //Eliminar
-				imprimeln("Operacion: eliminar");
-				imprimeln("Datos: "+cdato);
-				manArchivos.eliminar(cdato);
-				respuesta = "eliminado: "+cdato;
-				break;
-			case 2: //Lee
-				imprimeln("Operacion: leer");
-				imprimeln("Datos: "+cdato);
-				String l = manArchivos.leer(cdato);
-				respuesta = "leido "+cdato+": "+l;
-				break;
-			case 3: //Escribir
-				imprimeln("Operacion: escribir");
-				imprimeln("Datos: "+cdato);
-				if(cdato.split(",").length > 0){
-					manArchivos.escribir(cdato.split(",")[0], cdato.split(",")[1]);
-					respuesta = "escrito: "+cdato;
-				}else{
-					respuesta = "error ";
+			PaqueteRecurso cp = new PaqueteRecurso(solServidor);
+			imprimeln("Procesando petición recibida del cliente");
+			
+			if(cp.esSolicitud()){
+				byte rec = cp.getRecurso();
+				ManejadorRecurso mr = manejadoresRecursos.get(rec);
+				if(mr != null){
+					mr.concederRecurso(cp.getEmisor());
 				}
-				
-				break;
-				
-			}			
+			}else if(cp.esLiberacion()){
+				byte rec = cp.getRecurso();
+				ManejadorRecurso mr = manejadoresRecursos.get(rec);
+				if(mr != null){
+					mr.liberarRecurso(cp.getEmisor());
+				}
+			}
+			
+		}
+	}
+	
+	class ManejadorRecurso extends Thread{
+		byte recurso;
+		boolean recursoLibre;
+		LinkedList<Integer> colaEspera;
+		Integer propietario;
+		boolean continuar;
+		byte[] respServidor;
+		
+		public ManejadorRecurso(byte recurso){
+			
+			colaEspera = new LinkedList<Integer>();
+			this.recurso = recurso;
+			recursoLibre = true;
+		}
+		
+		
+		void concederRecurso(int solicitante){
+			if(recursoLibre){
+				recursoLibre = false;
+				propietario = solicitante;
+				enviarOK(solicitante);
+			}else{
+				colaEspera.offer(solicitante);				
+			}
+			if(listener != null)
+				listener.actualizarEstado(recurso, propietario, colaEspera);
+		}
+		
+		void enviarOK(int solicite){
 			imprimeln("Generando mensaje a ser enviado, llenando los campos necesarios");
-			respServidor=new byte[ConvertidorPaquetes.SOL_LENGTH];
-			ConvertidorPaquetes cpResp = new ConvertidorPaquetes(respServidor);
-			cpResp.setData(respuesta);
-			Pausador.pausa(1000);  //sin esta lÃ­nea es posible que Servidor solicite send antes que Cliente solicite receive
-			imprimeln("SeÃ±alamiento al nÃºcleo para envÃ­o de mensaje");
-			imprimeln("enviando respuesta al proceso: "+cp.getEmisor());
-			Nucleo.send(cp.getEmisor(),respServidor);
+			respServidor=new byte[PaqueteRecurso.SOL_LENGTH];
+			PaqueteRecurso cpResp = new PaqueteRecurso(respServidor);
+			cpResp.setRecurso(recurso);
+			cpResp.setOK();			
+			cpResp.setEmisor( ProcesoServidor.this.dameID() );
+			cpResp.setReceptor(solicite);
+			Pausador.pausa(200);  //sin esta lÃ­nea es posible que Servidor solicite send antes que Cliente solicite receive
+			imprimeln("Señalamiento al núcleo para envío de mensaje");
+			imprimeln("enviando respuesta al proceso: "+cpResp.getReceptor());
+			Nucleo.send(cpResp.getReceptor(),respServidor);
+		}
+		
+		
+		void liberarRecurso(int solicitante){
+			if(!recursoLibre && solicitante == propietario){
+				if(colaEspera.peek() == null){
+					recursoLibre = true;
+					propietario = null;
+				}else{
+					Integer siguiente = colaEspera.poll();
+					propietario = siguiente.intValue();
+					enviarOK(propietario);
+				}
+			}
+			if(listener != null)
+				listener.actualizarEstado(recurso, propietario, colaEspera);
+		
+		}
+		
+		
+		public void run(){
+			while(continuar);
 		}
 	}
 }
